@@ -184,55 +184,58 @@ get_key_ratio(symbol)
 
 # -- Trigger data fetch and plot --
 if st.button("Stock Analysis", icon="📥"):
-    df = get_stock_data(symbol, start_date, end_date)
-    if df is not None:
-        st.write(f"Showing results for: **{symbol.upper()}**")
-        # st.dataframe(df)
-        print(df.info())
+    if not symbol.strip():
+        st.warning("⚠️ Please enter a valid stock symbol.")
+    else:
+        df = get_stock_data(symbol, start_date, end_date)
+        if df is not None:
+            st.write(f"Showing results for: **{symbol.upper()}**")
+            # st.dataframe(df)
+            print(df.info())
 
-        # cumulative return graph
-        cum_df = get_cumulative_return(df)
+            # cumulative return graph
+            cum_df = get_cumulative_return(df)
 
-        # period of data
-        st.write(f"Period: {cum_df.index.min().strftime('%Y-%m-%d')} to {cum_df.index.max().strftime('%Y-%m-%d')}")
-            
-        # total no of trading days
-        days = len(cum_df)
+            # period of data
+            st.write(f"Period: {cum_df.index.min().strftime('%Y-%m-%d')} to {cum_df.index.max().strftime('%Y-%m-%d')}")
+                
+            # total no of trading days
+            days = len(cum_df)
 
-        # annualised return
-        # 1y = 252 trading days
-        ann_return = cum_df.iloc[-1]
-        print(f"cum_df.iloc[-1]: {ann_return}")
-        print(f"days: {days}")
-        ann_return = (cum_df.iloc[-1] ** (252/days) - 1) * 100
-    
-        # annualised volatility
-        ann_sd = np.std(df['return_percentChange']) * (252 ** 0.5) * 100
-
-
-
-        # sharpe ratio
-        # assume an avg annual risk-free rate is 1%
-        risk_free_rate = 0.01 / 252
-        sharpe_ratio = np.sqrt(252) * (np.mean(df['return_percentChange'])) / np.std(df['return_percentChange'])
-
-        # maximum drawdown
-        peak = np.maximum.accumulate(cum_df.dropna())
-        peak[peak < 1] = 1
-
-        drawdown = (cum_df) / peak - 1
-        max_dd = drawdown.min() * 100
-
-        # Sortino ratio
-
-        # Beta
+            # annualised return
+            # 1y = 252 trading days
+            ann_return = cum_df.iloc[-1]
+            print(f"cum_df.iloc[-1]: {ann_return}")
+            print(f"days: {days}")
+            ann_return = (cum_df.iloc[-1] ** (252/days) - 1) * 100
+        
+            # annualised volatility
+            ann_sd = np.std(df['return_percentChange']) * (252 ** 0.5) * 100
 
 
-    # header
-    st.subheader("📉 Performance Metrics")
 
-    col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Annualized Return", f"{ann_return.iloc[0].round(2)}%")
-    col2.metric("Annualized volatility", f"{ann_sd.round(2)}%")
-    col3.metric("Shape Ratio", f"{sharpe_ratio.round(2)}")
-    col4.metric("Maximum Drawdown", f"{max_dd.iloc[0].round(2)}%")
+            # sharpe ratio
+            # assume an avg annual risk-free rate is 1%
+            risk_free_rate = 0.01 / 252
+            sharpe_ratio = np.sqrt(252) * (np.mean(df['return_percentChange'])) / np.std(df['return_percentChange'])
+
+            # maximum drawdown
+            peak = np.maximum.accumulate(cum_df.dropna())
+            peak[peak < 1] = 1
+
+            drawdown = (cum_df) / peak - 1
+            max_dd = drawdown.min() * 100
+
+            # Sortino ratio
+
+            # Beta
+
+
+            # header
+            st.subheader("📉 Performance Metrics")
+
+            col1, col2, col3, col4 = st.columns(4)
+            col1.metric("Annualized Return", f"{ann_return.iloc[0].round(2)}%")
+            col2.metric("Annualized volatility", f"{ann_sd.round(2)}%")
+            col3.metric("Shape Ratio", f"{sharpe_ratio.round(2)}")
+            col4.metric("Maximum Drawdown", f"{max_dd.iloc[0].round(2)}%")
