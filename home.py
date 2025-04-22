@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 import pandas_datareader as web
 import yfinance as yf
+import matplotlib.pyplot as plt
 
 st.title("📈 Stock Performance Viewer")
 
@@ -60,6 +61,61 @@ def get_cumulative_return(df):
     except Exception as e:
         st.error(f"Error: {e}")
 
+
+# get financial data overtime
+def financial_data(symbol): 
+    if not symbol.strip():
+        # st.warning("⚠️ Please enter a valid stock symbol.")
+        return
+    else:
+        try:
+            data = yf.Ticker(symbol)
+            financials = data.financials.sort_index(axis=1)
+
+            print(financials)
+
+            # total revenue
+            total_revenue = financials.loc['Total Revenue']
+            total_revenue = total_revenue.dropna()
+            total_revenue.index = pd.to_datetime(total_revenue.index).year
+
+            # EBIT
+            EBIT = financials.loc['EBIT']
+            EBIT = EBIT.dropna()
+            EBIT.index = pd.to_datetime(EBIT.index).year
+
+            # Net Income
+            net_income = financials.loc['Net Income']
+            net_income = net_income.dropna()
+            net_income.index = pd.to_datetime(net_income.index).year
+
+            # EBIT
+            EBITDA = financials.loc['EBITDA']
+            EBITDA = EBITDA.dropna()
+            EBITDA.index = pd.to_datetime(EBITDA.index).year
+
+            # -- columns --
+            fn_col1, fn_col2 = st.columns(2, border=True)
+            fn_col3, fn_col4 = st.columns(2, border=True)
+
+            with fn_col1:
+                st.subheader('Total Revenue')
+                st.bar_chart(total_revenue, color="#45818e", height=200)
+            with fn_col2:
+                st.subheader('EBIT')
+                st.bar_chart(EBIT, color="#45818e", height=200)
+
+            with fn_col3:
+                st.subheader('EBITDA')
+                st.bar_chart(EBITDA, color="#45818e", height=200)
+
+            with fn_col4:
+                st.subheader('Net Income')
+                st.bar_chart(net_income, color="#45818e", height=200)
+        except Exception as e:
+            st.write("No data")
+            print(f"there an error: {e}")
+        
 
 # get key ratio
 def get_key_ratio(symbol):
@@ -120,21 +176,6 @@ def get_key_ratio(symbol):
         st.write(f"**Industry:** {industry}")
         st.write(f"**Sector:** {sector}")
 
-        # Financial Ratios
-        st.subheader("📊 Financial Ratios")
-        fn_data = {
-            "P/E": [priceEpsCurrentYear],
-            "P/S": [priceToSalesTrailing12Months],
-            "P/B": [pb_ratio],
-            "Trailing Peg Ratio": [trailingPegRatio],
-            "D/E": [debtToEquity],
-            "Trailing Dividend Yield": [trailingAnnualDividendYield]
-        }
-
-        fn_df = pd.DataFrame(fn_data)
-        # print(fn_df)
-        st.write(fn_df)
-
         # Trading data
         st.subheader("📈 Trading data")
 
@@ -159,6 +200,21 @@ def get_key_ratio(symbol):
             st.write(
                 f"**52 Weeks %Change:** {round(fiftyTwoWeekChangePercent, 2)}%")
             st.write(f"**Average Analyst Rating:** {averageAnalystRating}")
+
+        # Financial Ratios
+        st.subheader("📊 Financial Ratios")
+        fn_data = {
+            "P/E": [priceEpsCurrentYear],
+            "P/S": [priceToSalesTrailing12Months],
+            "P/B": [pb_ratio],
+            "Trailing Peg Ratio": [trailingPegRatio],
+            "D/E": [debtToEquity],
+            "Trailing Dividend Yield": [trailingAnnualDividendYield]
+        }
+
+        fn_df = pd.DataFrame(fn_data)
+        # print(fn_df)
+        st.write(fn_df)
 
     except Exception as e:
         st.error(f"🔴 Error fetching data: {e}")
@@ -186,6 +242,7 @@ end_date = st.date_input("End Date", today, format="YYYY-MM-DD")
 
 # -- Key ratio --
 get_key_ratio(symbol)
+financial_data(symbol)
 
 # -- Trigger data fetch and plot --
 if st.button("Stock Analysis", icon="📥"):
