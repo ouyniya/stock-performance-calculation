@@ -9,6 +9,8 @@ import yfinance as yf
 st.title("📈 Stock Performance Viewer")
 
 # -- Fetch stock data from stooq API --
+
+
 def get_stock_data(symbol, start_date, end_date):
     st.toast('📡 Fetching stock data...')
     try:
@@ -98,14 +100,14 @@ def get_key_ratio(symbol):
         fullExchangeName = info['fullExchangeName']
         exchangeTimezoneName = info['exchangeTimezoneName']
         averageDailyVolume3Month = info['averageDailyVolume3Month']
-        averageDailyVolume3Month = "{:0,.2f}".format(float(averageDailyVolume3Month))
+        averageDailyVolume3Month = "{:0,.2f}".format(
+            float(averageDailyVolume3Month))
 
         epsCurrentYear = info['epsCurrentYear']
         fiftyDayAverageChangePercent = info['fiftyDayAverageChangePercent']
         twoHundredDayAverageChangePercent = info['twoHundredDayAverageChangePercent']
         fiftyTwoWeekChangePercent = info['fiftyTwoWeekChangePercent']
         averageAnalystRating = info['averageAnalystRating']
-
 
         # display data
         st.success(f"Stock: {displayName}")
@@ -133,7 +135,6 @@ def get_key_ratio(symbol):
         # print(fn_df)
         st.write(fn_df)
 
-
         # Trading data
         st.subheader("📈 Trading data")
 
@@ -146,13 +147,17 @@ def get_key_ratio(symbol):
             st.write(f"**Currency:** {financialCurrency}")
             st.write(f"**Exchange Name:** {fullExchangeName}")
             st.write(f"**Exchange Timezone:** {exchangeTimezoneName}")
-            st.write(f"**Average Daily Volume - 3Month:** {financialCurrency} {averageDailyVolume3Month}")
+            st.write(
+                f"**Average Daily Volume - 3Month:** {financialCurrency} {averageDailyVolume3Month}")
 
         with left:
-            st.write(f"**EPS Current Year:** {epsCurrentYear}")
-            st.write(f"**50 Day Average %Change:** {fiftyDayAverageChangePercent}")
-            st.write(f"**200 Day Average %Change:** {twoHundredDayAverageChangePercent}")
-            st.write(f"**52 Weeks %Change:** {fiftyTwoWeekChangePercent}")
+            st.write(f"**EPS Current Year:** {round(epsCurrentYear,2)}")
+            st.write(
+                f"**50 Day Average %Change:** {round(fiftyDayAverageChangePercent*100,2)}%")
+            st.write(
+                f"**200 Day Average %Change:** {round(twoHundredDayAverageChangePercent*100,2)}%")
+            st.write(
+                f"**52 Weeks %Change:** {round(fiftyTwoWeekChangePercent, 2)}%")
             st.write(f"**Average Analyst Rating:** {averageAnalystRating}")
 
     except Exception as e:
@@ -197,8 +202,9 @@ if st.button("Stock Analysis", icon="📥"):
             cum_df = get_cumulative_return(df)
 
             # period of data
-            st.write(f"Period: {cum_df.index.min().strftime('%Y-%m-%d')} to {cum_df.index.max().strftime('%Y-%m-%d')}")
-                
+            st.write(
+                f"Period: {cum_df.index.min().strftime('%Y-%m-%d')} to {cum_df.index.max().strftime('%Y-%m-%d')}")
+
             # total no of trading days
             days = len(cum_df)
 
@@ -208,28 +214,26 @@ if st.button("Stock Analysis", icon="📥"):
             print(f"cum_df.iloc[-1]: {ann_return}")
             print(f"days: {days}")
             ann_return = (cum_df.iloc[-1] ** (252/days) - 1) * 100
-        
+
             # annualised volatility
-            ann_sd = np.std(df['return_percentChange']) * (252 ** 0.5) * 100
-
-
+            ann_sd = np.std(df['return_percentChange'], ddof=1) * (252 ** 0.5) * 100
 
             # sharpe ratio
             # assume an avg annual risk-free rate is 1%
             risk_free_rate = 0.01 / 252
-            sharpe_ratio = np.sqrt(252) * (np.mean(df['return_percentChange'])) / np.std(df['return_percentChange'])
+            sharpe_ratio = np.sqrt(
+                252) * (np.mean(df['return_percentChange'])) / np.std(df['return_percentChange'])
 
             # maximum drawdown
             peak = np.maximum.accumulate(cum_df.dropna())
             peak[peak < 1] = 1
+            print(peak)
+
+            # st.write(peak)
 
             drawdown = (cum_df) / peak - 1
+            # st.write(drawdown)
             max_dd = drawdown.min() * 100
-
-            # Sortino ratio
-
-            # Beta
-
 
             # header
             st.subheader("📉 Performance Metrics")
