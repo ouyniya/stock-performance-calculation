@@ -5,7 +5,7 @@ A lightweight Python tool to analyze and calculate stock performance over time. 
 
 ## 📸 Screenshots / Demo
 
-Watch the demo: https://youtu.be/xbaHfSJIAQQ
+Watch the demo: [https://youtu.be/xbaHfSJIAQQ](https://www.youtube.com/watch?v=rAuiik9ycWc)
 
 [![Watch the demo](https://img.youtube.com/vi/rAuiik9ycWc/maxresdefault.jpg)](https://www.youtube.com/watch?v=rAuiik9ycWc)
 
