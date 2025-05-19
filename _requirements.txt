@@ -1,0 +1,8 @@
+streamlit
+pandas
+numpy
+streamlit-tags
+matplotlib
+pandas-datareader
+setuptools
+yfinance
